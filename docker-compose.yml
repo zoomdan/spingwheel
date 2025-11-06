@@ -6,9 +6,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # Mounts the local application files into the container
+    # CRITICAL CHANGE: Removed source code mount (./:/var/www/html).
+    # Source code is now copied into the image during the build process (Dockerfile).
     volumes:
-      - .:/var/www/html
+      # Named volume for persistent user data (entries.txt)
+      - bni_data_volume:/var/www/html/data
     # Set user to match Nginx/PHP standards for file permissions
     user: "82:82" # Standard www-data user/group
     restart: always
@@ -18,12 +20,18 @@ services:
   # The Nginx web server service (handles requests from the browser)
   web:
     image: nginx:stable-alpine
-    # Mounts the application files and the custom Nginx configuration
+    # CRITICAL CHANGE: Removed source code mount (./:/var/www/html).
+    # Nginx will serve files from the built image's content.
     volumes:
-      - .:/var/www/html
+      # Only mount the Nginx configuration file
       - ./default.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "8080:80" # Map host port 8080 to container port 80
     depends_on:
       - app
     restart: always
+
+# Define the named volume for persistence
+volumes:
+  bni_data_volume:
+    driver: local
