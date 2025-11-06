@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  # The PHP-FPM service (handles running PHP scripts)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Mounts the local application files into the container
+    volumes:
+      - .:/var/www/html
+    # Set user to match Nginx/PHP standards for file permissions
+    user: "82:82" # Standard www-data user/group
+    restart: always
+    expose:
+      - "9000"
+
+  # The Nginx web server service (handles requests from the browser)
+  web:
+    image: nginx:stable-alpine
+    # Mounts the application files and the custom Nginx configuration
+    volumes:
+      - .:/var/www/html
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8080:80" # Map host port 8080 to container port 80
+    depends_on:
+      - app
+    restart: always
