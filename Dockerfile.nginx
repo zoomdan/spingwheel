@@ -30,6 +30,6 @@ RUN echo 'server { \
     } \
 }' > /etc/nginx/conf.d/default.conf
 
-# Set permissions for the mounted volume data directory
-# This directory is where PHP needs to write the entries.txt file.
-RUN mkdir -p /var/www/html/data && chown -R www-data:www-data /var/www/html/data
+# Only ensure the directory structure exists. 
+# Permissions will be managed by the PHP container or the volume mount.
+RUN mkdir -p /var/www/html/data
